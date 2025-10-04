@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚀 React Climate Predictor
 
 **React Climate Predictor** is a cutting-edge future weather prediction web app built with **React** and **Tailwind CSS**, leveraging the power of **NASA's climate modeling data** to provide long-range forecasts across the globe.
@@ -79,3 +80,7 @@ Follow these steps to set up the project locally:
 
 After starting the development server, open [http://localhost:5173](http://localhost:5173) in your browser.  
 Search for any city, select a future date, and view projected climate data. Use the unit toggle to switch between Celsius and Fahrenheit.
+=======
+# WeatherPredictionUI
+🌦️ Weather Prediction Dashboard – A React-based web app that provides climate insights, historical weather data, and forecasts. Features include interactive map search, date selection with a modern date picker, and dynamic data visualization. Built with React, TailwindCSS, and custom hooks for clean data handling.
+>>>>>>> 6eec73f594fdeabca73135f23f0fc70329cdc25b
