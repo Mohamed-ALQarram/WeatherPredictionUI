@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🚀 React Climate Predictor
 
 **React Climate Predictor** is a cutting-edge future weather prediction web app built with **React** and **Tailwind CSS**, leveraging the power of **NASA's climate modeling data** to provide long-range forecasts across the globe.
