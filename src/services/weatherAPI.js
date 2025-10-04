@@ -1,12 +1,12 @@
 // src/services/weatherAPI.js
 
-const BASE_URL = "https://awake-solace-production.up.railway.app/api/Weather";
+const BASE_URL = "https://weatherprediction-production-2120.up.railway.app/api/weather";
 
 // 🔹 Fetch weather by coordinates and date
-export const getWeather = async (lat, lon, date, numOfYears = 10) => {
+export const getWeather = async (lat, lon, date, HigherAccuracy= true) => {
   try {
     const response = await fetch(
-      `${BASE_URL}/${lat}/${lon}/${date}?NumOfYears=${numOfYears}`
+      `${BASE_URL}?lat=${lat}&lon=${lon}&date=${date}&HigherAccuracy=${HigherAccuracy}`
     );
 
     if (!response.ok) {

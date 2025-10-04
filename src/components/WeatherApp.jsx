@@ -5,18 +5,11 @@ import WeatherForecast from "./WeatherForecast";
 import Searchbar from "./Searchbar";
 
 function WeatherApp() {
-  const { currentWeather, loading, error, fetchWeather } = useWeather();
+  const { weatherData, loading, error, fetchWeather } = useWeather();
   const [date, setDate] = useState("");
+  const [locationName, setLocationName] = useState("");
 
   // Dummy city → coordinates mapping (replace with geocoding API later)
-  const cityToCoords = (city) => {
-    const cities = {
-      cairo: { lat: "30.0444", lon: "31.2357" },
-      london: { lat: "51.5072", lon: "-0.1276" },
-      paris: { lat: "48.8566", lon: "2.3522" },
-    };
-    return cities[city.toLowerCase()] || null;
-  };
 
   const handleSearch = (input) => {
     if (!date) {
@@ -30,19 +23,11 @@ function WeatherApp() {
     if (input.lat && input.lon) {
       lat = input.lat;
       lon = input.lon;
+      setLocationName(`${lat}, ${lon}`);
     }
     // Case 2: city name provided
-    else if (input.city) {
-      const coords = cityToCoords(input.city);
-      if (!coords) {
-        alert("Unknown city. Please try coordinates instead.");
-        return;
-      }
-      lat = coords.lat;
-      lon = coords.lon;
-    }
 
-    fetchWeather(lat, lon, date, 10);
+    fetchWeather(lat, lon, date, true);
   };
 
   const handleLocationSearch = () => {
@@ -54,7 +39,8 @@ function WeatherApp() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        fetchWeather(latitude, longitude, date, 10);
+        setLocationName("Your Location");
+        fetchWeather(latitude, longitude, date, true);
       },
       () =>
         alert("Unable to fetch your location. Please allow location access.")
@@ -83,10 +69,10 @@ function WeatherApp() {
       {error && <p className="text-red-500">{error}</p>}
 
       {/* Weather results */}
-      {currentWeather && (
+      {weatherData && (
         <>
-          <WeatherCard data={currentWeather} />
-          <WeatherForecast data={currentWeather} />
+          <WeatherCard data={weatherData} location={locationName} date={date} />
+          <WeatherForecast data={weatherData} />
         </>
       )}
     </div>

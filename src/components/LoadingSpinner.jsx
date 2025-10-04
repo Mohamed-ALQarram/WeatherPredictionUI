@@ -2,13 +2,13 @@ import React from "react";
 
 function LoadingSpinner() {
   return (
-    <div className="flex justify-center items-center p-12">
+    <div className="flex justify-center items-center p-12" role="status" aria-label="Loading">
       <div className="relative">
         {/* Outer Ring */}
         <div className="w-20 h-20 border-4 border-white/20 rounded-full animate-spin border-t-white/80 shadow-lg"></div>
 
         {/* Inner Ring */}
-        <div className="absolute inset-2 w-12 h-12 border-3 border-blue-200/30 rounded-full animate-spin border-t-blue-200/30 animation-delay-200"></div>
+        <div className="absolute inset-2 w-12 h-12 border-2 border-blue-200/30 rounded-full animate-spin border-t-blue-200/70 delay-200"></div>
 
         {/* Center Dot */}
         <div className="absolute inset-0 flex items-center justify-center">

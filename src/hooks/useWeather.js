@@ -12,13 +12,13 @@ export const useWeather = () => {
     lat,
     lon,
     date = "2025-12-25",
-    numOfYears = 10
+    HigherAccuracy = true
   ) => {
     setLoading(true);
     setError(null);
 
     try {
-      const data = await getWeather(lat, lon, date, numOfYears);
+      const data = await getWeather(lat, lon, date, HigherAccuracy);
 
       setWeatherData(data);
     } catch (err) {

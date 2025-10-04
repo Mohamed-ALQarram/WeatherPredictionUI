@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
 import { useState, useEffect } from "react";
 import Searchbar from "./components/Searchbar";
-import WeatherCard from "./components/WeatherCard";
-import WeatherForecast from "./components/WeatherForecast";
+import WeatherDashboard from "./components/WeatherDashboard";
 import LoadingSpinner from "./components/LoadingSpinner";
 import ErrorMessage from "./components/ErrorMessage";
 import { useWeather } from "./hooks/useWeather";
@@ -15,6 +14,7 @@ function App() {
   const [date, setDate] = useState(today);
   const [locationName, setLocationName] = useState("");
   const [mapVisible, setMapVisible] = useState(true);
+  const [validationError, setValidationError] = useState("");
 
   const fetchLocationName = async (lat, lon) => {
     try {
@@ -33,26 +33,41 @@ function App() {
     }
   };
 
+  // Validate date
+  const validateDate = () => {
+    if (!date) {
+      setValidationError("⚠️ Please select a date first!");
+      return false;
+    }
+
+    const selectedDate = new Date(date);
+    const todayDate = new Date(today);
+    
+
+    // Check if date is too old (optional: limit to last 50 years)
+    const fiftyYearsAgo = new Date();
+    fiftyYearsAgo.setFullYear(fiftyYearsAgo.getFullYear() - 50);
+    
+    if (selectedDate < fiftyYearsAgo) {
+      setValidationError("⚠️ Date is too old! Please select a date within the last 50 years.");
+      return false;
+    }
+
+    setValidationError("");
+    return true;
+  };
+
   const handleSearch = (query) => {
-    if (!date) return alert("Please select a date first!");
-    const cityToCoords = {
-      cairo: { lat: 30.0444, lon: 31.2357 },
-      london: { lat: 51.5072, lon: -0.1276 },
-      paris: { lat: 48.8566, lon: 2.3522 },
-    };
-    const { lat, lon } =
-      cityToCoords[query.toLowerCase()] || cityToCoords.cairo;
-    fetchWeather(lat, lon, date, 10);
-    setLocationName(query);
-    setMapVisible(false);
+    if (!validateDate()) return;
   };
 
   const handleLocationSearch = () => {
-    if (!date) return alert("Please select a date first!");
+    if (!validateDate()) return;
+    
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const { latitude, longitude } = pos.coords;
-        fetchWeather(latitude, longitude, date, 10);
+        fetchWeather(latitude, longitude, date, true);
         fetchLocationName(latitude, longitude);
         setMapVisible(false);
       },
@@ -62,12 +77,22 @@ function App() {
   };
 
   const handleMapClick = (lat, lon) => {
-    fetchWeather(lat, lon, date, 10);
+    if (!validateDate()) return;
+    
+    fetchWeather(lat, lon, date, true);
     fetchLocationName(lat, lon);
     setMapVisible(false);
   };
 
-  const handleRetry = () => fetchWeather(30.0444, 31.2357, date, 10);
+  const handleRetry = () => fetchWeather(30.0444, 31.2357, date, true);
+
+  // Clear validation error when date changes
+  useEffect(() => {
+    if (validationError) {
+      setValidationError("");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [date]);
 
   // Starry background
   const [stars, setStars] = useState([]);
@@ -124,20 +149,33 @@ function App() {
               loading={loading}
             />
           </div>
+          
+          {/* Validation Error Message */}
+          {validationError && (
+            <div className="mt-4 max-w-md mx-auto">
+              <div className="bg-red-500/20 backdrop-blur-lg border border-red-500/50 rounded-xl p-3 animate-shake">
+                <p className="text-red-300 text-sm font-semibold flex items-center justify-center gap-2">
+                  {validationError}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Map */}
         {mapVisible && !loading && !weatherData && (
-          <div className="max-w-3xl mx-auto mb-8 overflow-hidden shadow-2xl border border-white/20 rounded-2xl">
+          <div className="max-w-3xl mx-auto mb-8 overflow-hidden shadow-2xl border border-white/20 rounded-2xl relative z-0">
             <WeatherMap onSelect={handleMapClick} />
             <p className="text-white/60 text-center p-3 text-sm">
-              Click anywhere on the map to fetch weather for that location
+              {date 
+                ? "Click anywhere on the map to fetch weather for that location" 
+                : "⚠️ Please select a date first before using the map"}
             </p>
           </div>
         )}
 
         {/* Content */}
-        <div className="space-y-6 max-w-5xl mx-auto">
+        <div className="space-y-8 max-w-6xl mx-auto">
           {loading && (
             <div className="flex justify-center mt-12">
               <div className="bg-black/50 backdrop-blur-lg rounded-3xl p-6 border border-white/20 flex flex-col items-center">
@@ -157,18 +195,43 @@ function App() {
 
           {weatherData && !loading && !error && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <WeatherCard
-                  data={weatherData}
-                  location={locationName}
-                  date={date}
-                />
-                <WeatherForecast data={weatherData} />
-              </div>
+              {/* Dashboard */}
+              <WeatherDashboard
+                data={weatherData}
+                location={locationName}
+                date={date}
+              />
             </div>
           )}
         </div>
       </div>
+
+      {/* Extra styling */}
+      <style>{`
+        .react-datepicker {
+          z-index: 50 !important;
+          background: white !important;
+          border-radius: 12px !important;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.3) !important;
+          padding: 10px;
+        }
+        .react-datepicker__day--selected,
+        .react-datepicker__day--keyboard-selected {
+          background-color: #3b82f6 !important;
+          color: white !important;
+          border-radius: 50% !important;
+        }
+        
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(-5px); }
+          75% { transform: translateX(5px); }
+        }
+        
+        .animate-shake {
+          animation: shake 0.5s ease-in-out;
+        }
+      `}</style>
     </div>
   );
 }
